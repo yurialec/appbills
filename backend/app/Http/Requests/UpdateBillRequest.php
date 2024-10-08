@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreUserRequest extends FormRequest
+class UpdateBillRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -33,8 +33,8 @@ class StoreUserRequest extends FormRequest
     {
         return [
             "name" => "required|min:4|max:255",
-            "email" => "required|email|unique:users,email",
-            "password" => "required|min:8|regex:/[A-Za-z]/|regex:/[0-9]/|regex:/[@$!%*?&]/",
+            "bill_value" => "required|decimal:2",
+            "due_date" => "required|date",
         ];
     }
 
@@ -44,14 +44,10 @@ class StoreUserRequest extends FormRequest
             "name.required" => "O campo nome é obrigatório.",
             "name.min" => "O nome deve ter pelo menos 4 caracteres.",
             "name.max" => "O nome não pode ter mais que 255 caracteres.",
-            "email.required" => "O campo email é obrigatório.",
-            "email.email" => "O email deve ser um endereço de email válido.",
-            "email.unique" => "O email já está em uso.",
-            "password.min" => "A senha deve ter pelo menos 8 caracteres.",
-            "password.letters" => "A senha deve conter letras.",
-            "password.mixedCase" => "A senha deve conter letras maiúsculas e minúsculas.",
-            "password.numbers" => "A senha deve conter números.",
-            "password.symbols" => "A senha deve conter símbolos.",
+            "bill_value.required" => "O valor da conta é obrigatório.",
+            "bill_value.decimal" => "O valor da conta deve ser decimal.",
+            "due_date.required" => "A data de vencimento é obrigatória.",
+            "due_date.date" => "A data de vencimento deve ser uma data válida.",
         ];
     }
 }

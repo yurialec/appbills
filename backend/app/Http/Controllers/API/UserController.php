@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use DB;
 use Exception;
@@ -71,9 +72,37 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        //
+        DB::beginTransaction();
+
+        try {
+
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            DB::commit();
+
+            return response()->json(data: [
+                'status' => true,
+                'user' => $user,
+                'message' => 'Usuário atualizado com sucesso!',
+            ], status: 200);
+
+        } catch (Exception $e) {
+
+            dd($e);
+
+            DB::rollBack();
+
+            return response()->json(data: [
+                'status' => false,
+                'message' => 'Erro ao alterar usuário!',
+            ], status: 201);
+        }
     }
 
     /**

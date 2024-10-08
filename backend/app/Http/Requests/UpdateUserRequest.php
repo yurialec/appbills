@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreUserRequest extends FormRequest
+class UpdateUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,10 +31,12 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = $this->route('user');
+
         return [
             "name" => "required|min:4|max:255",
-            "email" => "required|email|unique:users,email",
-            "password" => "required|min:8|regex:/[A-Za-z]/|regex:/[0-9]/|regex:/[@$!%*?&]/",
+            "email" => "nullable|email|unique:users,email," . $user->id,
+            "password" => "nullable|min:8|regex:/[A-Za-z]/|regex:/[0-9]/|regex:/[@$!%*?&]/",
         ];
     }
 
@@ -48,10 +50,7 @@ class StoreUserRequest extends FormRequest
             "email.email" => "O email deve ser um endereço de email válido.",
             "email.unique" => "O email já está em uso.",
             "password.min" => "A senha deve ter pelo menos 8 caracteres.",
-            "password.letters" => "A senha deve conter letras.",
-            "password.mixedCase" => "A senha deve conter letras maiúsculas e minúsculas.",
-            "password.numbers" => "A senha deve conter números.",
-            "password.symbols" => "A senha deve conter símbolos.",
+            "password.regex" => "A senha deve conter letras, números e símbolos.",
         ];
     }
 }
