@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
+use App\Models\User;
+use DB;
+use Exception;
+use Hash;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): JsonResponse
+    {
+        $users = User::orderByDesc('id')->paginate(perPage: 10);
+
+        return response()->json(data: [
+            'status' => true,
+            'users' => $users
+        ], status: 200);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreUserRequest $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            DB::commit();
+            return response()->json(data: [
+                'status' => true,
+                'user' => $user,
+                'message' => 'Usuário cadastrado com sucesso!',
+            ], status: 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json(data: [
+                'status' => false,
+                'message' => 'Erro ao cadastrar usuário!',
+            ], status: 201);
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(User $user): JsonResponse
+    {
+        return response()->json([
+            'status' => true,
+            'user' => $user
+        ], status: 200);
+    }
+
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+}
