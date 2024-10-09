@@ -9,6 +9,7 @@ Route::prefix('bills')->group(callback: function () {
     Route::get('/{bill}', [BillController::class, 'show']);
     Route::post('/', [BillController::class, 'store']);
     Route::put('/{bill}', [BillController::class, 'update']);
+    Route::delete('/{bill}', [BillController::class, 'destroy']);
 });
 
 Route::prefix('users')->group(callback: function () {
@@ -16,4 +17,5 @@ Route::prefix('users')->group(callback: function () {
     Route::get('/{user}', [UserController::class, 'show']);
     Route::post('/', [UserController::class, 'store']);
     Route::put('/{user}', [UserController::class, 'update']);
+    Route::delete('/{user}', [UserController::class, 'destroy']);
 });

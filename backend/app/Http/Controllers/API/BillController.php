@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBillRequest;
 use App\Http\Requests\UpdateBillRequest;
 use App\Models\Bill;
-use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BillController extends Controller
 {
@@ -98,8 +98,26 @@ class BillController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Bill $bill)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $bill->delete();
+
+            DB::commit();
+
+            return response()->json(data: [
+                'status' => true,
+                'message' => 'Conta excluida com sucesso!',
+            ], status: 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json(data: [
+                'status' => false,
+                'message' => 'Erro ao excluir conta!',
+            ], status: 201);
+        }
     }
 }

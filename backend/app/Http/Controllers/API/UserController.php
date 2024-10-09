@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
-use DB;
 use Exception;
-use Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -93,9 +93,6 @@ class UserController extends Controller
             ], status: 200);
 
         } catch (Exception $e) {
-
-            dd($e);
-
             DB::rollBack();
 
             return response()->json(data: [
@@ -108,8 +105,26 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $user->delete();
+
+            DB::commit();
+
+            return response()->json(data: [
+                'status' => true,
+                'message' => 'Usuário excluido com sucesso!',
+            ], status: 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json(data: [
+                'status' => false,
+                'message' => 'Erro ao excluir usuário!',
+            ], status: 201);
+        }
     }
 }
