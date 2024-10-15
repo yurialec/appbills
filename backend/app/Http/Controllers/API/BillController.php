@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Log;
 
 class BillController extends Controller
 {
@@ -44,6 +45,8 @@ class BillController extends Controller
             ], status: 200);
         } catch (Exception $e) {
             DB::rollBack();
+
+            Log::warning('Erro', ['erro' => $e->getMessage()]);
 
             return response()->json(data: [
                 'status' => false,
@@ -87,7 +90,7 @@ class BillController extends Controller
 
         } catch (Exception $e) {
             DB::rollBack();
-
+            Log::warning('Erro', ['erro' => $e->getMessage()]);
             return response()->json(data: [
                 'status' => false,
                 'message' => 'Erro ao alterar conta!',
@@ -113,7 +116,7 @@ class BillController extends Controller
 
         } catch (Exception $e) {
             DB::rollBack();
-
+            Log::warning('Erro', ['erro' => $e->getMessage()]);
             return response()->json(data: [
                 'status' => false,
                 'message' => 'Erro ao excluir conta!',

@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Log;
 
 class UserController extends Controller
 {
@@ -49,7 +50,7 @@ class UserController extends Controller
             ], status: 200);
         } catch (Exception $e) {
             DB::rollBack();
-
+            Log::warning('Erro', ['erro' => $e->getMessage()]);
             return response()->json(data: [
                 'status' => false,
                 'message' => 'Erro ao cadastrar usuário!',
@@ -94,7 +95,7 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             DB::rollBack();
-
+            Log::warning('Erro', ['erro' => $e->getMessage()]);
             return response()->json(data: [
                 'status' => false,
                 'message' => 'Erro ao alterar usuário!',
@@ -120,7 +121,7 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             DB::rollBack();
-
+            Log::warning('Erro', ['erro' => $e->getMessage()]);
             return response()->json(data: [
                 'status' => false,
                 'message' => 'Erro ao excluir usuário!',
