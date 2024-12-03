@@ -25,7 +25,6 @@ class RecoverPasswordController extends Controller
         $user = User::where("email", $request->email)->first();
 
         if (!$user) {
-
             Log::warning("Tentativa de recuperação de senha para um e-mail não cadastrado.", ["email" => $request->email]);
             return response()->json([
                 'status' => false,
@@ -34,13 +33,10 @@ class RecoverPasswordController extends Controller
         }
 
         try {
-
-            $userPasswordReset = DB::table('password_reset_tokens')->where([
-                'email' => $request->email,
-            ]);
+            $userPasswordReset = DB::table('password_reset_tokens')->where('email', $request->email)->first();
 
             if ($userPasswordReset) {
-                $userPasswordReset->delete();
+                DB::table('password_reset_tokens')->where('email', $request->email)->delete();
             }
 
             $code = mt_rand(100000, 999999);
@@ -52,23 +48,26 @@ class RecoverPasswordController extends Controller
                 'created_at' => Carbon::now(),
             ]);
 
-            if ($userNewPasswordResets) {
-
-                $currentDate = Carbon::now();
-                $oneHourLater = $currentDate->addHour();
-                $formattedDate = $oneHourLater->format('d/m/Y');
-                $formattedTime = $oneHourLater->format('H:i');
-
-                Mail::to($user->email)->send(new SendEmailForgotPassword($user, $code, $formattedDate, $formattedTime));
+            if (!$userNewPasswordResets) {
+                throw new Exception('Falha ao criar o token de recuperação de senha.');
             }
+
+            $currentDate = Carbon::now();
+            $oneHourLater = $currentDate->addHour();
+            $formattedDate = $oneHourLater->format('d/m/Y');
+            $formattedTime = $oneHourLater->format('H:i');
+
+            Mail::to($user->email)->send(new SendEmailForgotPassword($user, $code, $formattedDate, $formattedTime));
 
             return response()->json([
                 'status' => true,
                 'message' => 'Enviamos um e-mail com instruções para redefinir sua senha. Por favor, verifique sua caixa de entrada.',
             ]);
-
         } catch (Exception $err) {
-            Log::warning('Erro ao recuperar senha', ['email' => $request->email, 'erro' => $err->getMessage()]);
+            Log::warning('Erro ao recuperar senha', [
+                'email' => $request->email,
+                'erro' => $err->getMessage(),
+            ]);
 
             return response()->json([
                 'status' => false,
