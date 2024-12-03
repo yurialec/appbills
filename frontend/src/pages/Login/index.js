@@ -1,33 +1,48 @@
 import { Button, StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
-
 import api from '../../config/api';
+import * as yup from 'yup';
+import { ContainerLogin } from '../../styles/custom';
 
 export default function Login() {
 
-    const Navigation = useNavigation();
+    const navigation = useNavigation();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const loginSubmit = async () => {
 
-        await api.post('/login', {
-            email, password
-        }).then(function (response) {
-            Alert.alert('Sucesso', response.data.user.email);
-        }).catch(function (error) {
-            if (error.response) {
-                Alert.alert("Ops", error.response.data.message)
-            } else {
-                Alert.alert("Ops", "Tente novamente mais tarde.")
-            }
-        });
+        try {
+            await validationSchema.validate({ email, password }, { abortEarly: false });
+
+            await api.post('/login', {
+                email, password
+            }).then(function (response) {
+                Alert.alert('Sucesso', response.data.user.email);
+            }).catch(function (error) {
+                if (error.response) {
+                    Alert.alert("Ops", error.response.data.message)
+                } else {
+                    Alert.alert("Ops", "Tente novamente mais tarde.")
+                }
+            });
+        } catch (error) {
+            Alert.alert('Ops', error.errors[0])
+        }
+
     }
 
+    const validationSchema = yup.object().shape({
+        email: yup.string('Necessário preencher o e-mail')
+            .required('Necessário preencher o e-mail'),
+        password: yup.string('Necessário preencher a senha')
+            .required('Necessário preencher a senha')
+    });
+
     return (
-        <View style={styles.container}>
+        <ContainerLogin>
 
             <View style={styles.logo}>
                 <Image style={styles.img} source={require('../../../assets/logo.png')} />
@@ -56,20 +71,14 @@ export default function Login() {
                 <Text style={styles.txtSubmit}>Acessar</Text>
             </TouchableOpacity>
 
-            <Text style={styles.linkLogin} onPress={() => Navigation.navigate('NewUser')}>Cadastrar</Text>
+            <Text style={styles.linkLogin} onPress={() => navigation.navigate('NewUser')}>Cadastrar</Text>
 
-            <Text style={styles.linkLogin} onPress={() => Navigation.navigate('RecoverPassword')}>Recuperar Senha</Text>
-        </View>
+            <Text style={styles.linkLogin} onPress={() => navigation.navigate('RecoverPassword')}>Recuperar Senha</Text>
+        </ContainerLogin>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#10101c'
-    },
     logo: {
         paddingBottom: 20,
     },
