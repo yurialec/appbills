@@ -13,9 +13,9 @@ Route::get('/', function () {
 });
 
 Route::post('/login', [LoginController::class, 'login'])->name('login');
-
-Route::post('forgot-password', [RecoverPasswordController::class, 'forgotPassword']);
-Route::post('reset-password', [RecoverPasswordController::class, 'resetPasswordCode']);
+Route::post('/register', [LoginController::class, 'register'])->name('register');
+Route::post('/forgot-password', [RecoverPasswordController::class, 'forgotPassword']);
+Route::post('/reset-password', [RecoverPasswordController::class, 'resetPasswordCode']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
 

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 use Auth;
+use DB;
 use Exception;
+use Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
@@ -67,6 +70,34 @@ class LoginController extends Controller
                 "status" => false,
                 "message" => "Erro ao realizar logout."
             ], 400);
+        }
+    }
+
+    public function register(StoreUserRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            DB::commit();
+            return response()->json(data: [
+                'status' => true,
+                'user' => $user,
+                'message' => 'Cadastrado com sucesso!',
+            ], status: 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::warning('Erro', ['erro' => $e->getMessage()]);
+            return response()->json(data: [
+                'status' => false,
+                'message' => 'Erro ao cadastrar!',
+            ], status: 201);
         }
     }
 }
